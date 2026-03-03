@@ -26,6 +26,11 @@ export function TimerWidget({
   const { push } = useToast();
 
   useEffect(() => {
+    if (projectId || !projects.length) return;
+    setProjectId(projects[0].id);
+  }, [projects, projectId]);
+
+  useEffect(() => {
     if (!running) return;
 
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -52,7 +57,8 @@ export function TimerWidget({
       });
 
       if (!res.ok) {
-        push("Timer action failed", "error");
+        const payload = await res.json().catch(() => ({}));
+        push(payload.error ?? "Timer action failed", "error");
         return;
       }
 
@@ -102,7 +108,7 @@ export function TimerWidget({
           </Button>
         ) : (
           <Button onClick={() => call("start")} disabled={busy || isPending || !projectId}>
-            Start timer
+            {projects.length ? "Start timer" : "Create a project first"}
           </Button>
         )}
       </div>

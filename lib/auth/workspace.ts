@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { assertWorkspaceMembership } from "@/lib/auth/permissions";
 
 export async function getUserWorkspaceContext(userId: string, requestedWorkspaceId?: string) {
   const memberships = await prisma.workspaceMember.findMany({
@@ -42,9 +43,5 @@ export async function getUserWorkspaceContext(userId: string, requestedWorkspace
 }
 
 export async function ensureWorkspaceAccess(userId: string, workspaceId: string) {
-  const membership = await prisma.workspaceMember.findUnique({
-    where: { workspaceId_userId: { workspaceId, userId } }
-  });
-  if (!membership) throw new Error("Forbidden");
-  return membership;
+  return assertWorkspaceMembership(userId, workspaceId);
 }

@@ -93,6 +93,7 @@ model Project {
   clientId    String?
   name        String
   billableRate Decimal?
+  budgetMinutes Int?
   archivedAt  DateTime?
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   client      Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
@@ -135,7 +136,9 @@ model TimeEntry {
   updatedAt   DateTime    @updatedAt
 
   @@index([workspaceId, userId, startedAt])
+  @@index([workspaceId, userId, endedAt, startedAt])
   @@index([workspaceId, projectId, startedAt])
+  @@index([projectId, endedAt])
   @@index([workspaceId, endedAt])
 }
 
