@@ -20,6 +20,21 @@ export default async function ReportsPage() {
         <div className="rounded-xl border bg-white p-4"><p className="text-sm text-slate-500">Revenue estimate</p><p className="text-2xl font-semibold">{formatCurrency(report.revenue)}</p></div>
       </div>
       <a className="inline-flex rounded-md bg-accent px-4 py-2 text-white" href={`/api/reports/export?workspaceId=${workspaceId}&from=${from.toISOString()}&to=${to.toISOString()}`}>Export CSV</a>
+      <section className="rounded-xl border bg-white p-4">
+        <h2 className="mb-3 text-lg font-semibold">Daily totals</h2>
+        {!report.grouped.length ? (
+          <p className="text-sm text-slate-600">No tracked time in this period.</p>
+        ) : (
+          <ul className="space-y-2">
+            {report.grouped.slice(0, 14).map((bucket) => (
+              <li key={bucket.key} className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2">
+                <span>{new Date(bucket.key).toLocaleDateString()}</span>
+                <span className="font-medium">{formatDuration(bucket.durationSec)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

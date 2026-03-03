@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { assertProjectBudget, ensureNoTimeOverlap } from "@/lib/services/time-entry-guards";
 
 const now = () => new Date();
 
@@ -19,18 +20,38 @@ export async function startTimer({
     });
     if (!project) throw new Error("Project unavailable");
 
+    const at = now();
     const current = await tx.timeEntry.findFirst({
       where: { workspaceId, userId, endedAt: null },
       orderBy: { startedAt: "desc" }
     });
 
-    const at = now();
     if (current) {
+      const isIdempotentRetry =
+        current.projectId === projectId &&
+        current.description === description &&
+        at.getTime() - current.startedAt.getTime() <= 10_000;
+
+      if (isIdempotentRetry) {
+        return tx.timeEntry.findUniqueOrThrow({
+          where: { id: current.id },
+          include: { project: true }
+        });
+      }
+
       await tx.timeEntry.update({
         where: { id: current.id },
         data: { endedAt: at, durationSec: Math.max(0, Math.floor((at.getTime() - current.startedAt.getTime()) / 1000)) }
       });
     }
+
+    await assertProjectBudget(tx, { projectId, incomingDurationSec: 0 });
+    await ensureNoTimeOverlap(tx, {
+      workspaceId,
+      userId,
+      startedAt: at,
+      endedAt: new Date(at.getTime() + 1000)
+    });
 
     return tx.timeEntry.create({
       data: {

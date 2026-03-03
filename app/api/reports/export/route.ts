@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
     from: searchParams.get("from"),
     to: searchParams.get("to"),
     projectId: searchParams.get("projectId") ?? undefined,
-    userId: searchParams.get("userId") ?? undefined
+    userId: searchParams.get("userId") ?? undefined,
+    groupBy: searchParams.get("groupBy") ?? "day"
   });
 
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
@@ -23,12 +24,20 @@ export async function GET(request: NextRequest) {
   if (context.role !== "ADMIN") parsed.data.userId = session.user.id;
 
   const report = await loadReportSummary(parsed.data);
+
+  const safeCell = (value: string) => {
+    if (/^[=+\-@]/.test(value)) {
+      return `'${value}`;
+    }
+    return value;
+  };
+
   const csv = parse(
     report.entries.map((entry) => ({
       date: entry.startedAt.toISOString(),
-      user: entry.user.name ?? entry.user.email,
-      project: entry.project.name,
-      description: entry.description,
+      user: safeCell(entry.user.name ?? entry.user.email),
+      project: safeCell(entry.project.name),
+      description: safeCell(entry.description),
       durationSec: entry.durationSec ?? 0
     }))
   );
