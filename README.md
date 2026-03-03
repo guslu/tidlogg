@@ -4,66 +4,124 @@ Tidlogg is a production-ready SaaS time tracking app for freelancers and small t
 
 ## Features
 
-- Secure registration/login with hashed passwords (bcrypt)
-- Multi-workspace model with strict data isolation
-- One-click start/stop timer with server-side business rules
-- Manual entries, projects, clients, tags
-- Role model: `ADMIN`, `MEMBER`
-- Dashboard with active timer and today's entries
-- Reporting summary and CSV export
-- Seed script with demo data
+- Secure registration/login with bcrypt password hashing
+- Workspace-based multi-tenancy with role-aware access (`ADMIN`, `MEMBER`)
+- One-click timer with server-side duration calculation and single-running-timer enforcement
+- Projects, clients, tags, manual entries, and reporting with CSV export
+- Seeded demo account for fast local verification
 
-## Tech stack
+## Stack
 
 - Next.js 15 (App Router)
 - TypeScript
 - Tailwind CSS
 - PostgreSQL
 - Prisma ORM
-- NextAuth (Credentials provider)
+- NextAuth (Credentials)
 - Zod
 
-## Setup
+---
 
-1. Install dependencies
+## Quick start (works on macOS/Linux/Windows)
+
+### 1) Prerequisites
+
+- Node.js 20+
+- npm 10+
+- PostgreSQL 15+
+
+### 2) Install
 
 ```bash
 npm install
 ```
 
-2. Create environment file
+> `postinstall` attempts `prisma generate` automatically. If your environment blocks Prisma downloads, run `npx prisma generate` later on a network that allows access to `binaries.prisma.sh`.
+
+### 3) Configure env
 
 ```bash
 cp .env.example .env
 ```
 
-3. Run migrations
+Update `.env` values for your local PostgreSQL.
+
+### 4) Create schema
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
-4. Seed demo data (optional)
+### 5) Seed demo data (optional but recommended)
 
 ```bash
 npx prisma db seed
 ```
 
-5. Start development server
+### 6) Start app
 
 ```bash
 npm run dev
 ```
 
-App runs at `http://localhost:3000`.
+Open `http://localhost:3000`.
 
-Demo user from seed:
+Demo credentials after seeding:
 
-- email: `demo@tidlogg.se`
-- password: `password123`
+- Email: `demo@tidlogg.se`
+- Password: `password123`
+
+---
+
+## Build & production check
+
+```bash
+npm run build
+npm run start
+```
+
+`npm run build` runs `prisma generate` first, so missing Prisma client issues are surfaced early.
+
+---
+
+## Troubleshooting
+
+### `@prisma/client did not initialize yet`
+
+Run:
+
+```bash
+npx prisma generate
+```
+
+Then retry build/dev.
+
+If generation fails with `binaries.prisma.sh` errors, your network/proxy/firewall is blocking Prisma engine downloads.
+
+### Next.js warning about wrong workspace root / multiple lockfiles
+
+Tidlogg now sets `outputFileTracingRoot` in `next.config.ts` to reduce incorrect root inference when your home directory has another lockfile.
+
+### Lint deprecation message (`next lint`)
+
+This is a Next.js upstream deprecation notice and does not indicate a project error.
+
+---
+
+## Security notes
+
+- Passwords are hashed with bcrypt
+- Zod validation is used on API input boundaries
+- Workspace membership checks are enforced server-side
+- Timer duration and timer state transitions are server-authoritative
 
 ## Deploying to Vercel
 
-- Set `DATABASE_URL`, `NEXTAUTH_URL`, and `NEXTAUTH_SECRET` in project environment variables.
-- Build command: `npm run build`
-- Start command: `npm run start`
+Set the following environment variables:
+
+- `DATABASE_URL`
+- `NEXTAUTH_URL`
+- `NEXTAUTH_SECRET`
+
+Build command: `npm run build`  
+Start command: `npm run start`
