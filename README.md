@@ -1,6 +1,8 @@
 # Tidlogg
 
-Tidlogg is a production-ready SaaS time tracking app for freelancers and small teams, built with Next.js App Router, TypeScript, Tailwind, Prisma, PostgreSQL, NextAuth credentials auth, and Zod validation.
+Tidlogg is a production-ready SaaS time tracking app for freelancers and small teams, built with Next.js App Router, TypeScript, Tailwind, Prisma, NextAuth credentials auth, and Zod validation.
+
+**Local development** uses **SQLite** (no database server required). **Production** can use PostgreSQL (see `.env.example` and "Deploying" below).
 
 ## Features
 
@@ -15,8 +17,7 @@ Tidlogg is a production-ready SaaS time tracking app for freelancers and small t
 - Next.js 15 (App Router)
 - TypeScript
 - Tailwind CSS
-- PostgreSQL
-- Prisma ORM
+- Prisma ORM (SQLite for local dev; PostgreSQL for production)
 - NextAuth (Credentials)
 - Zod
 
@@ -28,7 +29,8 @@ Tidlogg is a production-ready SaaS time tracking app for freelancers and small t
 
 - Node.js 20+
 - npm 10+
-- PostgreSQL 15+
+
+No database server is required for local dev; the default setup uses a SQLite file (`prisma/dev.db`).
 
 ### 2) Install
 
@@ -44,9 +46,17 @@ npm install
 cp .env.example .env
 ```
 
-Update `.env` values for your local PostgreSQL.
+The default `.env.example` uses SQLite (`DATABASE_URL="file:./dev.db"`). Ensure `NEXTAUTH_URL` and `NEXTAUTH_SECRET` are set. For PostgreSQL instead, set `DATABASE_URL` to your Postgres connection string and switch the Prisma schema `datasource` provider to `postgresql` (see `prisma/schema.prisma`).
 
-### 4) Create schema
+### 4) Create database and schema
+
+For **SQLite** (default local dev):
+
+```bash
+npx prisma db push
+```
+
+For **PostgreSQL**, use migrations instead:
 
 ```bash
 npx prisma migrate dev --name init
@@ -58,13 +68,15 @@ npx prisma migrate dev --name init
 npx prisma db seed
 ```
 
+Environment variables are loaded from `.env` (Next.js loads it automatically; Prisma CLI loads it via `dotenv` in `prisma.config.ts`).
+
 ### 6) Start app
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open the URL shown in the terminal (e.g. `http://localhost:3000` or `http://localhost:3001` if 3000 is in use).
 
 Demo credentials after seeding:
 
@@ -98,6 +110,10 @@ Then retry build/dev.
 
 If generation fails with `binaries.prisma.sh` errors, your network/proxy/firewall is blocking Prisma engine downloads.
 
+### Prisma schema validation: "missing an opposite relation field on the model Workspace"
+
+The `Workspace` model must include `activeWorkspaces UserActiveWorkspace[]` so that `UserActiveWorkspace.workspace` has a valid back-relation. Do not remove this field when editing the schema. See `AGENTS.md` for details.
+
 ### Next.js warning about wrong workspace root / multiple lockfiles
 
 Tidlogg now sets `outputFileTracingRoot` in `next.config.ts` to reduce incorrect root inference when your home directory has another lockfile.
@@ -117,9 +133,9 @@ This is a Next.js upstream deprecation notice and does not indicate a project er
 
 ## Deploying to Vercel
 
-Set the following environment variables:
+Use **PostgreSQL** in production. In `prisma/schema.prisma`, set the datasource to `provider = "postgresql"` and ensure migrations have been run. Set the following environment variables:
 
-- `DATABASE_URL`
+- `DATABASE_URL` (PostgreSQL connection string)
 - `NEXTAUTH_URL`
 - `NEXTAUTH_SECRET`
 
