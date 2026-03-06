@@ -9,7 +9,12 @@ export const projectSchema = z.object({
   budgetMinutes: z.coerce.number().int().min(1).max(10_000_000).optional().nullable()
 });
 
-export const clientSchema = z.object({ name: z.string().min(2).max(120) });
+const hexColor = z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional().nullable();
+
+export const clientSchema = z.object({
+  name: z.string().min(2).max(120),
+  color: hexColor
+});
 
 export const tagSchema = z.object({ name: z.string().min(1).max(40), color: z.string().optional().nullable() });
 

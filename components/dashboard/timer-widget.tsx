@@ -70,21 +70,23 @@ export function TimerWidget({
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <div className="mb-2 text-sm text-slate-500">Active timer</div>
-      <div className="mb-4 flex items-center justify-between">
+    <div className="rounded-2xl border border-slate-200 bg-layout-card p-5 shadow-sm">
+      <div className="mb-3 flex items-center justify-between">
         <div>
-          <div className="text-3xl font-semibold text-accent">{elapsed}</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Active timer
+          </div>
+          <div className="mt-2 text-4xl font-semibold text-accent">{elapsed}</div>
           {running ? (
-            <p className="text-sm text-slate-600">
+            <p className="mt-1 text-sm text-slate-600">
               {running.project.name} · {running.description || "No description"}
             </p>
           ) : (
-            <p className="text-sm text-slate-600">No running timer</p>
+            <p className="mt-1 text-sm text-slate-600">No running timer</p>
           )}
         </div>
       </div>
-      <div className="grid gap-2 md:grid-cols-3">
+      <div className="grid gap-2 md:grid-cols-[minmax(0,2fr),minmax(0,3fr),auto]">
         <Select
           value={projectId}
           onChange={(event) => setProjectId(event.target.value)}

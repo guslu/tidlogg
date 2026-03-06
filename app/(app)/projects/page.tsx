@@ -2,13 +2,14 @@ import { requireUserSession } from "@/lib/auth/session";
 import { getUserWorkspaceContext } from "@/lib/auth/workspace";
 import { prisma } from "@/lib/db/prisma";
 import { ProjectForm } from "@/components/projects/project-form";
+import { ClientBadge } from "@/components/clients/client-badge";
 import { formatDuration } from "@/lib/utils";
 
 type ProjectItem = {
   id: string;
   name: string;
   budgetMinutes: number | null;
-  client: { name: string } | null;
+  client: { name: string; color: string | null } | null;
 };
 
 type ClientOption = {
@@ -23,7 +24,7 @@ export default async function ProjectsPage() {
   const [projects, clients, durations]: [ProjectItem[], ClientOption[], { projectId: string; _sum: { durationSec: number | null } }[]] = await Promise.all([
     prisma.project.findMany({
       where: { workspaceId },
-      select: { id: true, name: true, budgetMinutes: true, client: { select: { name: true } } },
+      select: { id: true, name: true, budgetMinutes: true, client: { select: { name: true, color: true } } },
       orderBy: { createdAt: "desc" }
     }),
     prisma.client.findMany({
@@ -48,7 +49,13 @@ export default async function ProjectsPage() {
         {projects.map((project) => (
           <div key={project.id} className="grid gap-1 border-b p-3 last:border-b-0 md:grid-cols-3 md:items-center">
             <span>{project.name}</span>
-            <span className="text-sm text-slate-600">{project.client?.name ?? "No client"}</span>
+            <span className="text-sm text-slate-600">
+              {project.client ? (
+                <ClientBadge name={project.client.name} color={project.client.color} />
+              ) : (
+                "No client"
+              )}
+            </span>
             <span className="text-sm text-slate-600">
               {formatDuration(durationMap.get(project.id) ?? 0)} tracked
               {project.budgetMinutes ? ` / ${formatDuration(project.budgetMinutes * 60)} budget` : ""}

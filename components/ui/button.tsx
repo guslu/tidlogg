@@ -9,12 +9,13 @@ export function Button({ className, variant = "default", ...props }: Props) {
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition",
+        "disabled:cursor-not-allowed disabled:opacity-50",
         {
-          "bg-accent text-accent-foreground hover:bg-accent/90": variant === "default",
-          "bg-slate-200 text-slate-900 hover:bg-slate-300": variant === "secondary",
-          "hover:bg-slate-100": variant === "ghost",
-          "bg-rose-600 text-white hover:bg-rose-700": variant === "danger"
+          "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90": variant === "default",
+          "bg-white text-slate-800 shadow-sm hover:bg-slate-50": variant === "secondary",
+          "text-slate-700 hover:bg-slate-100": variant === "ghost",
+          "bg-rose-600 text-white shadow-sm hover:bg-rose-700": variant === "danger"
         },
         className
       )}

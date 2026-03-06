@@ -32,7 +32,9 @@ async function main() {
 
   await prisma.userActiveWorkspace.create({ data: { userId: user.id, workspaceId: workspace.id } });
 
-  const client = await prisma.client.create({ data: { workspaceId: workspace.id, name: "Nordic Design AB" } });
+  const client = await prisma.client.create({
+    data: { workspaceId: workspace.id, name: "Nordic Design AB", color: "#6366f1" }
+  });
   const [projectA, projectB] = await Promise.all([
     prisma.project.create({ data: { workspaceId: workspace.id, clientId: client.id, name: "Website Refresh", billableRate: 1100 } }),
     prisma.project.create({ data: { workspaceId: workspace.id, name: "Internal Ops", billableRate: 850 } })

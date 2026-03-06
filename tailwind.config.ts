@@ -10,9 +10,13 @@ const config: Config = {
     extend: {
       colors: {
         accent: {
-          DEFAULT: "#4F7C82",
-          foreground: "#F6FAF9"
-        }
+          DEFAULT: "#0B7285",
+          foreground: "#E6F4F7"
+        },
+        "layout-background": "#F3F6FB",
+        "layout-sidebar": "#0B1B2A",
+        "layout-sidebar-muted": "#112336",
+        "layout-card": "#FFFFFF"
       }
     }
   },

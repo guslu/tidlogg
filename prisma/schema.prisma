@@ -78,6 +78,7 @@ model Client {
   id          String    @id @default(cuid())
   workspaceId String
   name        String
+  color       String?
   archivedAt  DateTime?
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   projects    Project[]

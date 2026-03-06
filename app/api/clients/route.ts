@@ -18,6 +18,12 @@ export async function POST(request: NextRequest) {
   const parsed = clientSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
 
-  const client = await prisma.client.create({ data: { workspaceId, name: parsed.data.name } });
+  const client = await prisma.client.create({
+    data: {
+      workspaceId,
+      name: parsed.data.name,
+      color: parsed.data.color ?? null
+    }
+  });
   return NextResponse.json(client, { status: 201 });
 }
